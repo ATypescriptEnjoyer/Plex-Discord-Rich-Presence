@@ -41,11 +41,11 @@ class DiscordRichPresence {
       return;
     }
     const details =
-    message.folder === "Movies"
+      message.folder === "Movies"
         ? message.title
         : `${message.title
-            .substring(0, message.title.indexOf(" - "))
-            .trim()} S${message.season}E${message.episode}`;
+          .substring(0, message.title.indexOf(" - "))
+          .trim()} S${message.season}E${message.episode}`;
     this.setDiscordPresence(message, details);
   };
 
@@ -90,15 +90,11 @@ class DiscordRichPresence {
       this.timeout = setTimeout(
         () => this.clearPresence(),
         endTimeMilliseconds - 1000
-      ); //end time
+      );
+      await this.discordClient.setActivity(activity);
     } else {
-      activity = {
-        ...activity,
-        startTimestamp: Math.round(moment().valueOf()),
-      };
-      this.timeout = setTimeout(() => this.clearPresence(), 15 * 60 * 1000); //15 Minutes
+      this.clearPresence(); //Clear when paused
     }
-    this.discordClient.setActivity(activity);
   };
 }
 

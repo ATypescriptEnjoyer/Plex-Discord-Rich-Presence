@@ -2,11 +2,8 @@ name: build-app
 
 on:
   push:
-    branches:
-      - '*'
     tags:
       - '*'
-  workflow_dispatch:
 
 
 jobs:

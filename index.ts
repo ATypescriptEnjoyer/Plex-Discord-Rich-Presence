@@ -31,9 +31,10 @@ const env: Env = envText.split(/[\r\n]+/).reduce((prev, curr) => {
 	return { ...prev, [key]: value };
 }, {} as Env);
 
-const discordClient = await new Client({ transport: "ipc" }).login({
-	clientId: env.DISCORD_CLIENTID,
-});
+console.log(env);
+
+const discordClient = new Client({ transport: "ipc" });
+await discordClient.connect(env.DISCORD_CLIENTID)
 const client = await mqtt.connectAsync(env.MQTT_HOST, {
 	username: env.MQTT_USERNAME,
 	password: env.MQTT_PASSWORD,

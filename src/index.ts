@@ -48,7 +48,9 @@ interface Env {
 	console.log(`Subscribed to ${env.MQTT_TOPIC}.`);
 	client.on("message", async (_, payload)  => {
 		const data: Payload = JSON.parse(payload.toString("utf8"));
-		console.log(data);
+		if(data.body.state === "Stopped") {
+			return await discordClient.clearActivity();
+		}
 		const presence: Presence = {
 			state: data.body.state,
 			details: data.body.type === "episode" ? data.body.tv_title : data.body.movie_title,

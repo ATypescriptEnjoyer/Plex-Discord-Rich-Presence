@@ -55,7 +55,7 @@ interface Env {
 			state: data.body.state,
 			details: data.body.type === "episode" ? data.body.tv_title : data.body.movie_title,
 			largeImageKey: data.body.poster,
-			endTimestamp: data.body.state === "Playing" ? +data.body.duration - +data.body.view_offset - 1000 : undefined
+			endTimestamp: data.body.state === "Playing" ? Date.now() + (+data.body.duration - +data.body.view_offset - 1000) : undefined
 		}
 		await discordClient.setActivity(presence);
 	});

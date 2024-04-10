@@ -26,7 +26,7 @@ interface Env {
 	MQTT_TOPIC: string;
 }
 
-async () => {
+(async () => {
 	const envText = await readFile(".env", {encoding: "utf8"});
 	const env: Env = envText.split(/[\r\n]+/).reduce((prev, curr) => {
 		const [key, value] = curr.split("=");
@@ -57,4 +57,4 @@ async () => {
 		}
 		await discordClient.setActivity(presence);
 	});
-}
+})();

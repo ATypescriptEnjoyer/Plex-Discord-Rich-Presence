@@ -19,7 +19,7 @@ jobs:
       - run: yarn install
       - run: yarn package
       - name: Release
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             app.exe

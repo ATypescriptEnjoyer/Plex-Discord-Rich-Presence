@@ -16,6 +16,6 @@
   },
   "scripts": {
     "lint": "bunx @biomejs/biome format --write index.ts",
-    "createexe": "bun build index.ts --compile --minify --outfile plex-discord-rpc.exe"
+    "createexe": "bun build index.ts --compile --outfile plex-discord-rpc.exe"
   }
 }

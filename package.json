@@ -1,0 +1,21 @@
+{
+  "name": "plex-discord-rpc",
+  "module": "index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@types/bun": "latest",
+    "@types/discord-rpc": "^4.0.8",
+    "pkg": "^5.8.1"
+  },
+  "peerDependencies": {
+    "typescript": "^5.0.0"
+  },
+  "dependencies": {
+    "discord-rpc": "^4.0.1",
+    "mqtt": "^5.5.1"
+  },
+  "scripts": {
+    "lint": "bunx @biomejs/biome format --write index.ts",
+    "createexe": "bun build index.ts --compile --minify --outfile plex-discord-rpc.exe"
+  }
+}

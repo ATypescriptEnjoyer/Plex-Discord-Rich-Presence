@@ -1,0 +1,24 @@
+name: build-app
+
+on:
+  push:
+    branches:
+      - '*'
+
+jobs:
+  job:
+    name: build-app
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v1
+      - run: bun install
+      - run: bun createexe
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            plex-discord-rpc.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      

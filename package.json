@@ -13,7 +13,8 @@
   "scripts": {
     "start": "yarn build && node build/index.js",
     "build": "npx esbuild --format=cjs --target=node21 --platform=node --bundle --outfile=bundle.js src/index.ts",
-    "package": "./build.bat"
+    "package-win": "./build.bat",
+    "package-linux": "./build.sh"
   },
   "devDependencies": {
     "@types/discord-rpc": "^4.0.3",

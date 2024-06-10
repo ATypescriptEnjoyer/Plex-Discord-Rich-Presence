@@ -34,7 +34,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
             node-version: '20.14'
-            cache: 'yarn'
+      - name: Install yarn
+        run:  npm -g install yarn
       - run: yarn install
       - run: yarn package-linux
       - name: Release

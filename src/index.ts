@@ -60,4 +60,7 @@ interface Env {
 		}
 		await discordClient.setActivity(presence);
 	});
+	discordClient.on("disconnected", () => process.exit(0));
+	client.on("disconnect", () => process.exit(0));
+	client.on("error", () => process.exit(0));
 })();

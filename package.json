@@ -1,6 +1,6 @@
 {
   "name": "discord_rpc_plex",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "description": "Rich presence for Discord & Plex",
   "main": "index.js",
   "author": "Sasha",

@@ -28,7 +28,7 @@ jobs:
       - name: Build package
         id: build
         run: |
-          echo "APP_NAME=$(node copyExec.js)" >> $GITHUB_OUTPUT
+          echo "APP_NAME=$(node copyExec.js | awk '/VERSION: / {print $2}')" >> $GITHUB_OUTPUT
 
       - name: Release
         if: github.ref_type == 'tag'

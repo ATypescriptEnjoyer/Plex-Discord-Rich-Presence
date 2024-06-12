@@ -37,6 +37,7 @@ interface Env {
 	
 	const discordClient = new Client({ transport: "ipc" });
 	await discordClient.connect(env.DISCORD_CLIENTID)
+	console.log("Connected to discord IPC");
 	const client = await mqtt.connectAsync(env.MQTT_HOST, {
 		username: env.MQTT_USERNAME,
 		password: env.MQTT_PASSWORD,

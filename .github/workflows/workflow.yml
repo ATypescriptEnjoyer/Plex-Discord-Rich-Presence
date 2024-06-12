@@ -9,24 +9,6 @@ on:
 
 
 jobs:
-  # build-windows:
-  #   name: build-app-win
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/checkout@v4
-  #     - name: Use Node.js
-  #       uses: actions/setup-node@v4
-  #       with:
-  #           node-version: '21.x'
-  #     - run: yarn install
-  #     - run: yarn package-win
-  #     - name: Release
-  #       uses: softprops/action-gh-release@v2
-  #       with:
-  #         files: |
-  #           app.exe
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   build-linux:
     name: build-app-linux
     runs-on: ubuntu-latest
@@ -35,15 +17,23 @@ jobs:
       - name: Use Node.js
         uses: actions/setup-node@v4
         with:
-            node-version: '20.14'
+            node-version: '21.x'
+
       - name: Install yarn
         run:  npm -g install yarn
-      - run: yarn install
-      - run: yarn package-linux
+
+      - name: Install packages
+        run: yarn install
+
+      - name: Build package
+        id: build
+        run: |
+          echo "APP_NAME=$(node copyExec.js)" >> $GITHUB_OUTPUT
+
       - name: Release
         if: github.ref_type == 'tag'
         uses: akkuman/gitea-release-action@v1
         with:
           files: |
-            app
+            ${{ steps.build.outputs.APP_NAME }}
       

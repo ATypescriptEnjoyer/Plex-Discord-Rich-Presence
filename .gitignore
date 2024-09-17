@@ -118,3 +118,5 @@ dist
 env.json
 output.txt
 build
+
+*.exe

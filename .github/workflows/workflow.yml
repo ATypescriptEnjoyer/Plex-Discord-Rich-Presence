@@ -36,6 +36,9 @@ jobs:
       - name: Install packages
         run: go install
 
+      - name: Run Tests
+        run: go test -v
+
       - name: Build package
         id: build
         run: |

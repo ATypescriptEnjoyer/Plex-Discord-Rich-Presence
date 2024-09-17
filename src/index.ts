@@ -1,101 +1,58 @@
-import { Client, Presence } from "discord-rpc";
-import * as mqttjs from "mqtt";
-import { default as axios } from "axios";
-import * as moment from "moment";
-import * as fs from "fs";
+import mqtt from "mqtt";
+import { Client, type Presence } from "discord-rpc";
+import { readFile } from "fs/promises";
 
-/**
- * Main class for Discord Rich Presence
- * @class
- * @public
- */
-class DiscordRichPresence {
-  timeout: NodeJS.Timeout | number = 0;
-  environment: Environment;
-  discordClient: Client;
-  mqttClient: mqttjs.Client;
-
-  constructor() {
-    console.log("Rich Presence Started");
-    const fileText = fs.readFileSync("./env.json").toString("utf-8");
-    this.environment = JSON.parse(fileText) as Environment;
-    this.discordClient = new Client({ transport: "ipc" });
-    this.mqttClient = mqttjs.connect(this.environment.mqtt.host, {
-      username: this.environment.mqtt.username,
-      password: this.environment.mqtt.password,
-    });
-    this.mqttClient.on("connect", () => this.mqttClient.subscribe("discord"));
-    this.mqttClient.on("error", (e) => console.log(e.message));
-    this.mqttClient.on("message", (_, payload) => this.parseMessage(payload));
-    this.discordClient.login({ clientId: this.environment.discord.clientId });
-  }
-
-  parseMessage = async (payload: Buffer) => {
-    const messageString = Buffer.from(payload).toString("utf-8");
-    const message: Message = JSON.parse(messageString).body;
-    if (
-      message.state === "stopped" ||
-      this.environment.settings.excluded.includes(message.folder)
-    ) {
-      await this.discordClient.clearActivity();
-      return;
-    }
-    const details =
-      message.folder === "Movies"
-        ? message.title
-        : `${message.title
-          .substring(0, message.title.indexOf(" - "))
-          .trim()} S${message.season}E${message.episode}`;
-    this.setDiscordPresence(message, details);
-  };
-
-  clearPresence = () => {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-      this.timeout = 0;
-    }
-    this.discordClient.clearActivity();
-  };
-
-  setDiscordPresence = async (message: Message, details: string) => {
-    if (this.timeout) {
-      clearTimeout(this.timeout);
-      this.timeout = 0;
-    }
-    let activity: Presence = {
-      state: message.state.charAt(0).toUpperCase() + message.state.slice(1),
-      details,
-      largeImageKey: message.poster,
-      smallImageKey: `${message.state === "playing" ? "play" : "pause"}_512`,
-      instance: true,
-    };
-    if (message.state === "playing") {
-      const { data: sessions } = await axios.get(
-        `${this.environment.plex.host}/status/sessions?X-Plex-Token=${this.environment.plex.key}`,
-        {
-          headers: {
-            Accept: "application/json, text/plain, */*",
-          },
-        }
-      );
-      const userSession = sessions.MediaContainer.Metadata.find(
-        (session: Session) => session.User.title === this.environment.plex.username
-      );
-      const endTimeMilliseconds = userSession.duration - userSession.viewOffset;
-      const endTimestamp: number = moment()
-        .add(endTimeMilliseconds, "milliseconds")
-        .subtract("1", "second")
-        .valueOf();
-      activity = { ...activity, endTimestamp };
-      this.timeout = setTimeout(
-        () => this.clearPresence(),
-        endTimeMilliseconds - 1000
-      );
-      await this.discordClient.setActivity(activity);
-    } else {
-      this.clearPresence(); //Clear when paused
-    }
-  };
+interface Payload {
+	subject: {[key: string]: string}
+	body: {
+		state: "Playing" | "Paused" | "Stopped"
+		tv_title: string;
+		movie_title: string;
+		season: string;
+		episode: string;
+		type: "episode" | "movie";
+		poster: string;
+		view_offset: string;
+		duration: string;
+	}
+	topic: string;
 }
 
-new DiscordRichPresence();
+interface Env {
+	DISCORD_CLIENTID: string;
+	MQTT_HOST: string;
+	MQTT_USERNAME: string;
+	MQTT_PASSWORD: string;
+	MQTT_TOPIC: string;
+}
+
+const envText = await readFile(".env", {encoding: "utf8"});
+const env: Env = envText.split(/[\r\n]+/).reduce((prev, curr) => {
+	const [key, value] = curr.split("=");
+	return { ...prev, [key]: value };
+}, {} as Env);
+
+console.log(env);
+
+const discordClient = new Client({ transport: "ipc" });
+await discordClient.connect(env.DISCORD_CLIENTID)
+const client = await mqtt.connectAsync(env.MQTT_HOST, {
+	username: env.MQTT_USERNAME,
+	password: env.MQTT_PASSWORD,
+	protocolVersion: 5,
+	protocol: "mqtt",
+});
+console.log("Connected to MQTT.");
+await client.subscribeAsync(env.MQTT_TOPIC);
+console.log(`Subscribed to ${env.MQTT_TOPIC}.`);
+client.on("message", async (_, payload)  => {
+    const data: Payload = JSON.parse(payload.toString("utf8"));
+	console.log(data);
+	const presence: Presence = {
+		state: data.body.state,
+		details: data.body.type === "episode" ? data.body.tv_title : data.body.movie_title,
+		largeImageKey: data.body.poster,
+		endTimestamp: data.body.state === "Playing" ? +data.body.duration - +data.body.view_offset - 1000 : undefined
+	}
+	await discordClient.setActivity(presence);
+});

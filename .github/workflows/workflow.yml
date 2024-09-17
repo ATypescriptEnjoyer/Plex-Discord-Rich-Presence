@@ -1,0 +1,27 @@
+name: build-app
+
+on:
+  push:
+    tags:
+      - '*'
+
+
+jobs:
+  job:
+    name: build-app
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+            node-version: '21.x'
+      - run: yarn package
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            app.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      

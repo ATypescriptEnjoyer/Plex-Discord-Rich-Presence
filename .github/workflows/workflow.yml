@@ -48,7 +48,7 @@ jobs:
 
       - name: Release
         if: github.ref_type == 'tag'
-        uses: akkuman/gitea-release-action@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
             builds/*

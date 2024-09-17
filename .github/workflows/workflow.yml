@@ -54,4 +54,37 @@ jobs:
         with:
           files: |
             ${{ env.APP_NAME }}
+
+  build-windows:
+    name: build-app-windows
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+            node-version: '21.x'
+
+      - name: Install yarn
+        run:  npm -g install yarn
+
+      - name: Install packages
+        run: yarn install
+
+      - name: Build package
+        id: build
+        run: |
+          echo "APP_NAME=$(node copyExec.js | awk '/VERSION: / {print $2}')" >> $GITHUB_ENV
+      
+      - name: Log version
+        run: |
+          echo "${{ env.APP_NAME }}"
+
+      - name: Release
+        if: github.ref_type == 'tag'
+        uses: akkuman/gitea-release-action@v1
+        with:
+          files: |
+            ${{ env.APP_NAME }}
+      
       

@@ -21,8 +21,9 @@ func TestCalculateEnd(t *testing.T) {
 	duration := 5000
 	offsetStr := strconv.Itoa(offset)
 	durationStr := strconv.Itoa(duration)
-	endTime := calculateEnd(offsetStr, durationStr)
-	expectedTime := time.Now().Add(time.Duration(duration-offset-1000) * time.Millisecond)
+	now := time.Now()
+	endTime := calculateEnd(now, offsetStr, durationStr)
+	expectedTime := now.Add(time.Duration(duration-offset-1000) * time.Millisecond)
 	if endTime != expectedTime {
 		t.Errorf("calculateEnd(%s, %s) did not return correct end time", offsetStr, durationStr)
 	}

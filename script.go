@@ -28,15 +28,15 @@ func loadEnv() (Env, error) {
 	}, nil
 }
 
-func calculateEnd(offset string, duration string) time.Time {
+func calculateEnd(now time.Time, offset string, duration string) time.Time {
 	offsetIntVal, offsetErr := strconv.Atoi(offset)
 	durationIntVal, durationErr := strconv.Atoi(duration)
 	if offsetErr != nil || durationErr != nil {
-		return time.Now()
+		return now
 	}
 	mediaDuration := time.Duration(durationIntVal) * time.Millisecond
 	offsetDuration := time.Duration(offsetIntVal) * time.Millisecond
-	return time.Now().Add(mediaDuration - offsetDuration - 1000*time.Millisecond)
+	return now.Add(mediaDuration - offsetDuration - 1000*time.Millisecond)
 }
 
 var handleTopicMessage mqtt.MessageHandler = func(c mqtt.Client, m mqtt.Message) {
@@ -59,7 +59,7 @@ var handleTopicMessage mqtt.MessageHandler = func(c mqtt.Client, m mqtt.Message)
 		LargeImage: payload.Body.Poster,
 	}
 	if payload.Body.State == StatePlaying {
-		endTime := calculateEnd(payload.Body.ViewOffset, payload.Body.Duration)
+		endTime := calculateEnd(time.Now(), payload.Body.ViewOffset, payload.Body.Duration)
 		activity.Timestamps = &client.Timestamps{End: &endTime}
 	}
 	setErr := client.SetActivity(activity)

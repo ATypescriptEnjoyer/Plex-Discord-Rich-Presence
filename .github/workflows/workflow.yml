@@ -1,0 +1,49 @@
+name: build-app
+
+on:
+  push:
+    branches:
+      - 'master'
+    tags:
+      - '*'
+
+
+jobs:
+  sonarqube:
+    name: SonarQube Trigger
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checking out
+      uses: actions/checkout@v4
+      with:
+        # Disabling shallow clone is recommended for improving relevancy of reporting
+        fetch-depth: 0
+    - name: SonarQube Scan
+      uses: kitabisa/sonarqube-action@v1.2.1
+      with:
+        host: ${{ vars.SONARQUBE_URL }}
+        login: ${{ secrets.SONARQUBE_TOKEN }}
+  build-linux:
+    name: build-app-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-go@v5
+        with:
+            go-version: '^1.23.1'
+
+      - name: Install packages
+        run: go install
+
+      - name: Build package
+        id: build
+        run: |
+          go build -o builds/ && GOOS=windows GOARCH=amd64 go build -o builds/
+
+      - name: Release
+        if: github.ref_type == 'tag'
+        uses: akkuman/gitea-release-action@v1
+        with:
+          files: |
+            builds/*

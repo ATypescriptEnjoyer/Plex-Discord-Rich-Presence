@@ -7,7 +7,7 @@ on:
 
 
 jobs:
-  job:
+  build-windows:
     name: build-app-win
     runs-on: windows-latest
     steps:
@@ -25,7 +25,7 @@ jobs:
             app.exe
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  job:
+  build-linux:
     name: build-app-linux
     runs-on: ubuntu-latest
     steps:

@@ -39,7 +39,7 @@ jobs:
 
 
       - name: Run Tests
-        run: mv .env.test .env && go test -v && rm -f .env
+        run: mv .env.testing .env && go test -v && rm -f .env
 
       - name: Build package
         id: build

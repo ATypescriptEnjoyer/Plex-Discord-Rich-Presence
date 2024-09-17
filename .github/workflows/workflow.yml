@@ -28,12 +28,16 @@ jobs:
       - name: Build package
         id: build
         run: |
-          echo "APP_NAME=$(node copyExec.js | awk '/VERSION: / {print $2}')" >> $GITHUB_OUTPUT
+          echo "APP_NAME=$(node copyExec.js | awk '/VERSION: / {print $2}')" >> $GITHUB_ENV
+      
+      - name: Log version
+        run: |
+          echo "${{ env.APP_NAME }}"
 
       - name: Release
         if: github.ref_type == 'tag'
         uses: akkuman/gitea-release-action@v1
         with:
           files: |
-            ${{ steps.build.outputs.APP_NAME }}
+            ${{ env.APP_NAME }}
       

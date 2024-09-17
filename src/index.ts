@@ -28,7 +28,7 @@ interface Env {
 
 (async () => {
 	const envText = await readFile(".env", {encoding: "utf8"});
-	const env: Env = envText.split(/[\r\n]+/).reduce((prev, curr) => {
+	const env: Env = envText.split(/[\r\n]+/).reduce((prev: Env, curr: string) => {
 		const [key, value] = curr.split("=");
 		return { ...prev, [key]: value };
 	}, {} as Env);
@@ -46,7 +46,7 @@ interface Env {
 	console.log("Connected to MQTT.");
 	await client.subscribeAsync(env.MQTT_TOPIC);
 	console.log(`Subscribed to ${env.MQTT_TOPIC}.`);
-	client.on("message", async (_, payload)  => {
+	client.on("message", async (_, payload: Buffer)  => {
 		const data: Payload = JSON.parse(payload.toString("utf8"));
 		if(data.body.state === "Stopped") {
 			return await discordClient.clearActivity();

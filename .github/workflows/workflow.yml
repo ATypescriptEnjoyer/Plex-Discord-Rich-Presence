@@ -8,7 +8,7 @@ on:
 
 jobs:
   job:
-    name: build-app
+    name: build-app-win
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,12 +17,30 @@ jobs:
         with:
             node-version: '21.x'
       - run: yarn install
-      - run: yarn package
+      - run: yarn package-win
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
             app.exe
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  job:
+    name: build-app-linux
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+            node-version: '21.x'
+      - run: yarn install
+      - run: yarn package-linux
+      - name: Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            app
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       
